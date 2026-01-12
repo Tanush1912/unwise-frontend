@@ -2,17 +2,17 @@
 
 **Unwise** is a high-performance, mobile-first Progressive Web App (PWA) designed to replace legacy expense splitters with a premium, neobrutalist aesthetic and cutting-edge tech.
 
-## 🚀 Features
+## Features
 
-- 📱 **Mobile-First Neobrutalism**: Striking high-contrast UI with large touch targets and smooth Framer Motion animations.
-- 🧾 **AI Receipt Scanning**: Upload receipts and extract items automatically using a Zustand-powered workflow.
-- 👥 **Advanced Group Management**: Create groups, manage members (including virtual/placeholder members), and track group-specific balances.
-- 🤝 **Friend Management**: Track individual debts and settle up with friends outside of groups.
-- ⚖️ **Dynamic Splitting**: Support for Equal, Exact Amount, Percentage, and Itemized (receipt-based) splitting.
-- ⚡ **Real-time Synchronization**: Powered by TanStack Query for optimistic updates and seamless data fetching.
-- 📲 **PWA Ready**: Installable on iOS and Android with standalone display mode.
+- **Mobile-First Neobrutalism**: Striking high-contrast UI with large touch targets and smooth Framer Motion animations.
+- **AI Receipt Scanning**: Upload receipts and extract items automatically using a Zustand-powered workflow.
+- **Advanced Group Management**: Create groups, manage members (including virtual/placeholder members), and track group-specific balances.
+- **Friend Management**: Track individual debts and settle up with friends outside of groups.
+- **Dynamic Splitting**: Support for Equal, Exact Amount, Percentage, and Itemized (receipt-based) splitting.
+- **Real-time Synchronization**: Powered by TanStack Query for optimistic updates and seamless data fetching.
+- **PWA Ready**: Installable on iOS and Android with standalone display mode.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) (Modern CSS-first approach)
@@ -22,7 +22,7 @@
 - **UI Components**: [Radix UI](https://www.radix-ui.com/) & [Shadcn UI](https://ui.shadcn.com/)
 - **Icons**: [Lucide React](https://lucide.dev/) & [Tabler Icons](https://tabler-icons.io/)
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 unwise-frontend/
@@ -50,7 +50,7 @@ unwise-frontend/
     └── expense-store.ts    # Zustand store for the multi-step expense flow
 ```
 
-## 📖 Key Pages & Functionality
+## Key Pages & Functionality
 
 ### 1. Dashboard (`/`)
 The command center. Shows your net balance, total owed, and total you owe. Features a "Recent Activity" feed for quick updates.
@@ -70,7 +70,7 @@ Manage direct relationships. View who you owe or who owes you outside of a group
 ### 5. Profile (`/profile`)
 Manage your identity. Update your avatar, view account details, and handle security (password resets).
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 Create a `.env.local` file in the root:
 
@@ -80,7 +80,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 NEXT_PUBLIC_BACKEND_URL=your_go_backend_api_url
 ```
 
-## 🛠 Development
+##  Development
 
 1. **Install Dependencies**:
    ```bash
@@ -98,5 +98,45 @@ NEXT_PUBLIC_BACKEND_URL=your_go_backend_api_url
    npm run start
    ```
 
-## 📱 PWA Support
+## PWA Support
 To ensure a native feel, the app is configured with a custom viewport manifest. When adding to the home screen on iOS/Android, it will hide browser chrome and utilize `safe-area-inset` for a seamless experience.
+
+## License
+
+**Copyright (c) 2024 Tanush Govind**
+
+All rights reserved.
+
+This project, including all source code, design elements, styling, and documentation, is proprietary and confidential.
+
+**You may NOT:**
+- Use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this software
+- Use the design, styling, or UI components for commercial or personal projects
+- Remove or alter any copyright notices
+
+**You MAY:**
+- View the source code for educational purposes
+- Reference this project in your portfolio with proper attribution
+- Fork this repository for personal learning (not for redistribution)
+
+**Attribution Required:**
+If you reference, derive inspiration from, or use any portion of this codebase in any form (including but not limited to code, design patterns, UI components, or styling), you must:
+
+1. Provide clear and visible attribution to the original author
+2. Include a link to this repository
+3. State that your work is "inspired by" or "based on" this project
+
+**Commercial Use:**
+Commercial use of any part of this codebase is strictly prohibited without explicit written permission from the copyright holder.
+
+For licensing inquiries, please contact [tanush1912@gmail.com]
+
+---
+
+**Note:** This license applies to the entire codebase, including but not limited to:
+- All source code files
+- UI/UX design and styling
+- Component architecture and patterns
+- Documentation and README files
+
+See [LICENSE](./LICENSE) file for full terms and conditions.
