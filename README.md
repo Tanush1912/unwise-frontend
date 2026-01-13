@@ -2,6 +2,10 @@
 
 **Unwise** is a high-performance, mobile-first Progressive Web App (PWA) designed to replace legacy expense splitters with a premium, neobrutalist aesthetic and cutting-edge tech.
 
+## Overview
+
+A modern expense splitting application built with Next.js 15, featuring a bold neobrutalist design system. Unwise enables users to split bills, track debts, and manage group expenses with real-time synchronization. The app includes AI-powered receipt scanning, advanced group management with placeholder members, and comprehensive friend debt tracking. Built with TypeScript, Tailwind CSS 4, TanStack Query, and Framer Motion for smooth animations.
+
 ## Features
 
 - **Mobile-First Neobrutalism**: Striking high-contrast UI with large touch targets and smooth Framer Motion animations.
