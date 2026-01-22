@@ -61,6 +61,7 @@ export default function ExpensePage() {
         }
     }, [isError])
 
+
     const handleEdit = async () => {
         if (!expense) return
 
@@ -203,6 +204,12 @@ export default function ExpensePage() {
                             <div className="bg-gray-50 px-4 py-2 border-b-2 border-black font-bold text-sm uppercase tracking-wider text-gray-500">
                                 Split with
                             </div>
+                            {expense.expense_type === "ITEMIZED" && expense.receipt_items && expense.receipt_items.length > 0 && (
+                                <div className="bg-orange-50 border-b-2 border-black px-4 py-2 text-xs font-medium text-orange-800">
+                                    <AlertCircle className="inline h-3 w-3 mr-1" />
+                                    Itemized expense - showing calculated splits
+                                </div>
+                            )}
                             <div className="divide-y-2 divide-black">
                                 {expense.splits.map((split) => (
                                     <div key={split.userId} className="flex items-center justify-between p-4 bg-white">

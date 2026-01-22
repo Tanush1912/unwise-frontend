@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Receipt, Tag, Users, X, IndianRupee, Calendar as CalendarIcon, Camera, LayoutList } from "lucide-react"
+import { Tag, Users, X, IndianRupee, Calendar as CalendarIcon, Camera, LayoutList } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -173,7 +173,7 @@ export const AddExpenseFlow = ({ groupId: initialGroupId, expenseId }: { groupId
         setSplits(splitMap)
       }
 
-      if (data.split_method === 'ITEMIZED') {
+      if (data.split_method === 'ITEMIZED' || data.type === 'ITEMIZED') {
         const currentReceiptUrl = useExpenseStore.getState().receiptImageUrl
         if (data.receipt_image_url) {
           setReceiptImageUrl(data.receipt_image_url)
@@ -207,7 +207,9 @@ export const AddExpenseFlow = ({ groupId: initialGroupId, expenseId }: { groupId
             id: item.id || Math.random().toString(),
             name: item.name,
             price: item.price,
-            assignedUsers: (item.assignments || []).map((a: any) => a.user_id)
+            assignedUsers: (item.assignments || []).map((a: any) =>
+              typeof a === 'string' ? a : a.user_id
+            )
           }))
           setReceiptItems(items)
         } else if (!data.items || data.items.length === 0) {
@@ -362,7 +364,7 @@ export const AddExpenseFlow = ({ groupId: initialGroupId, expenseId }: { groupId
       const receiptItemsPayload = receiptItems.map(item => ({
         name: item.name,
         price: item.price,
-        assigned_to: item.assignedUsers
+        assignments: item.assignedUsers.map(userId => ({ user_id: userId }))
       }))
 
       const expenseData = {
@@ -421,6 +423,12 @@ export const AddExpenseFlow = ({ groupId: initialGroupId, expenseId }: { groupId
               queryClient.invalidateQueries({ queryKey: ["group", internalGroupId, user.id] })
             )
           }
+        }
+
+        if (expenseId) {
+          invalidationPromises.push(
+            queryClient.invalidateQueries({ queryKey: ["expense", expenseId] })
+          )
         }
 
         await Promise.all(invalidationPromises)
@@ -558,6 +566,12 @@ export const AddExpenseFlow = ({ groupId: initialGroupId, expenseId }: { groupId
               queryClient.invalidateQueries({ queryKey: ["group", internalGroupId, user.id] })
             )
           }
+        }
+
+        if (expenseId) {
+          invalidationPromises.push(
+            queryClient.invalidateQueries({ queryKey: ["expense", expenseId] })
+          )
         }
 
         await Promise.all(invalidationPromises)
