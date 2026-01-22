@@ -62,6 +62,12 @@ interface BackendTransaction {
     receipt_image_url?: string
     receipt_url?: string
     receipt_image?: string
+    receipt_items?: Array<{
+        id?: string
+        name: string
+        price: number
+        assignments?: Array<{ user_id: string }>
+    }>
     tax?: number
     cgst?: number
     sgst?: number
@@ -70,7 +76,7 @@ interface BackendTransaction {
     date_iso?: string
     group_id?: string
     category?: string
-    user_id?: string // for payers/splits sometimes
+    user_id?: string
 }
 
 interface BalancesResponse {
@@ -129,6 +135,7 @@ export interface Expense {
     date: string
     time?: string
     type: "expense" | "repayment"
+    expense_type?: string
     user_share: number
     user_net_amount: number
     user_is_owed: boolean
@@ -142,6 +149,12 @@ export interface Expense {
     }>
     category?: string
     receiptImage?: string
+    receipt_items?: Array<{
+        id?: string
+        name: string
+        price: number
+        assignedUsers: string[]
+    }>
     tax?: number
     cgst?: number
     sgst?: number
@@ -227,46 +240,57 @@ export const fetchGroupDetails = async (groupId: string, userId?: string) => {
         is_placeholder: m.is_placeholder,
     }))
 
-    const expenses: Expense[] = transactionsData.map((tx) => ({
-        id: tx.id,
-        description: tx.description,
-        amount: tx.total_amount,
-        paidBy: {
-            id: tx.paid_by_user.id,
-            name: tx.paid_by_user.name || tx.paid_by_user.email || "Unknown",
-        },
-        date: tx.date,
-        time: tx.time,
-        type: (tx.type?.toLowerCase() === "repayment" || tx.type?.toUpperCase() === "PAYMENT") ? "repayment" : "expense",
-        user_share: Math.abs(tx.user_share || 0),
-        user_net_amount: tx.user_net_amount ?? tx.user_share ?? 0,
-        user_is_owed: tx.user_is_owed || false,
-        user_is_lent: tx.user_is_lent || false,
-        user_is_payer: tx.user_is_payer || false,
-        user_is_recipient: tx.user_is_recipient || false,
-        explanation: tx.explanation,
-        splits: (tx.splits || []).map((split) => ({
-            userId: split.user_id,
-            userName: split.user_name || split.user_email || "Unknown",
-            amount: split.amount,
-        })),
-        receiptImage: (() => {
-            const url = tx.receipt_image_url || tx.receipt_url || tx.receipt_image;
-            return url;
-        })(),
-        tax: tx.tax,
-        cgst: tx.cgst,
-        sgst: tx.sgst,
-        service_charge: tx.service_charge,
-        payers: (tx.payers || []).map((p) => ({
-            userId: p.user_id,
-            userName: p.user_name || p.user_email || "Unknown",
-            amount: p.amount_paid,
-        })),
-        created_at: tx.created_at,
-        full_date: tx.date_iso || tx.date,
-        group_id: groupId,
-    }))
+    const expenses: Expense[] = transactionsData.map((tx) => {
+        const receiptItems = tx.receipt_items?.map((item) => ({
+            id: item.id || Math.random().toString(),
+            name: item.name,
+            price: item.price,
+            assignedUsers: item.assignments?.map((a) => a.user_id) || []
+        })) || undefined
+
+        return {
+            id: tx.id,
+            description: tx.description,
+            amount: tx.total_amount,
+            paidBy: {
+                id: tx.paid_by_user.id,
+                name: tx.paid_by_user.name || tx.paid_by_user.email || "Unknown",
+            },
+            date: tx.date,
+            time: tx.time,
+            type: (tx.type?.toLowerCase() === "repayment" || tx.type?.toUpperCase() === "PAYMENT") ? "repayment" : "expense",
+            expense_type: tx.type,
+            user_share: Math.abs(tx.user_share || 0),
+            user_net_amount: tx.user_net_amount ?? tx.user_share ?? 0,
+            user_is_owed: tx.user_is_owed || false,
+            user_is_lent: tx.user_is_lent || false,
+            user_is_payer: tx.user_is_payer || false,
+            user_is_recipient: tx.user_is_recipient || false,
+            explanation: tx.explanation,
+            splits: (tx.splits || []).map((split) => ({
+                userId: split.user_id,
+                userName: split.user_name || split.user_email || "Unknown",
+                amount: split.amount,
+            })),
+            receiptImage: (() => {
+                const url = tx.receipt_image_url || tx.receipt_url || tx.receipt_image;
+                return url;
+            })(),
+            receipt_items: receiptItems,
+            tax: tx.tax,
+            cgst: tx.cgst,
+            sgst: tx.sgst,
+            service_charge: tx.service_charge,
+            payers: (tx.payers || []).map((p) => ({
+                userId: p.user_id,
+                userName: p.user_name || p.user_email || "Unknown",
+                amount: p.amount_paid,
+            })),
+            created_at: tx.created_at,
+            full_date: tx.date_iso || tx.date,
+            group_id: groupId,
+        }
+    })
 
     return {
         group: {
@@ -533,6 +557,8 @@ export const fetchExpenseDetails = async (expenseId: string) => {
         throw await parseApiError(res)
     }
     const data = await res.json() as BackendTransaction
+
+
     const memberMap = new Map<string, string>()
     if (data.group_id) {
         try {
@@ -558,6 +584,13 @@ export const fetchExpenseDetails = async (expenseId: string) => {
         return "Unknown"
     }
 
+    const receiptItems = data.receipt_items?.map((item) => ({
+        id: item.id || Math.random().toString(),
+        name: item.name,
+        price: item.price,
+        assignedUsers: item.assignments?.map((a) => a.user_id) || []
+    })) || undefined
+
     const mappedExpense: Expense = {
         id: data.id,
         description: data.description,
@@ -569,6 +602,7 @@ export const fetchExpenseDetails = async (expenseId: string) => {
             name: getName(data.payers?.[0]?.user_id || "unknown", data.payers?.[0]),
         },
         type: (data.type?.toLowerCase() === "repayment" || data.type?.toUpperCase() === "PAYMENT") ? "repayment" : "expense",
+        expense_type: data.type,
         user_share: 0,
         user_net_amount: 0,
         user_is_owed: false,
@@ -586,7 +620,8 @@ export const fetchExpenseDetails = async (expenseId: string) => {
             userName: getName(s.user_id, s),
             amount: s.amount
         })),
-        receiptImage: data.receipt_image_url,
+        receiptImage: data.receipt_image_url || data.receipt_url || data.receipt_image,
+        receipt_items: receiptItems,
         cgst: data.cgst,
         sgst: data.sgst,
         service_charge: data.service_charge,
