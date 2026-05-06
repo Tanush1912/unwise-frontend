@@ -45,7 +45,25 @@ function HomeContent() {
   useEffect(() => {
     if (loading || user || demoLoading) return
 
+    const accessToken = searchParams.get('access_token')
+    const refreshToken = searchParams.get('refresh_token')
     const isDemo = searchParams.get('demo') === 'true'
+
+    if (accessToken && refreshToken) {
+      setDemoLoading(true)
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ error }) => {
+          if (error) {
+            console.error('Token session error:', error)
+            router.push('/login')
+          } else {
+            router.replace('/')
+          }
+          setDemoLoading(false)
+        })
+      return
+    }
+
     if (isDemo) {
       setDemoLoading(true)
       supabase.auth.signInWithPassword({
