@@ -51,7 +51,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null)
       setLoading(false)
 
-      if (!session && pathname !== "/login") {
+      const isDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "true"
+      if (!session && pathname !== "/login" && !isDemo) {
         router.push("/login")
       }
     })

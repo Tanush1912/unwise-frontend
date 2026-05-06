@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { Dashboard } from "@/components/dashboard"
 import { BottomNav } from "@/components/bottom-nav"
 import { useAuth } from "@/contexts/auth-context"
@@ -16,6 +16,7 @@ function HomeContent() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [demoLoading, setDemoLoading] = useState(false)
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
@@ -42,12 +43,28 @@ function HomeContent() {
   }, [searchParams, router])
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login")
-    }
-  }, [user, loading, router])
+    if (loading || user || demoLoading) return
 
-  if (loading) {
+    const isDemo = searchParams.get('demo') === 'true'
+    if (isDemo) {
+      setDemoLoading(true)
+      supabase.auth.signInWithPassword({
+        email: 'demo@unwise.app',
+        password: 'UnwiseDemo2026!',
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Demo login error:', error)
+          router.push('/login')
+        }
+        setDemoLoading(false)
+      })
+      return
+    }
+
+    router.push("/login")
+  }, [user, loading, router, searchParams, demoLoading])
+
+  if (loading || demoLoading) {
     return <DashboardLoading />
   }
 
