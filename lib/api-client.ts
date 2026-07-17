@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { isDemoMode, resolveDemoRequest } from './demo-mode'
 
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -11,6 +12,7 @@ export interface ApiError {
 }
 
 export const getAuthToken = async (retries = 3): Promise<string | null> => {
+  if (isDemoMode()) return "demo-token"
   try {
     const { data: { session: initialSession }, error } = await supabase.auth.getSession()
 
@@ -56,6 +58,11 @@ export const apiRequest = async <T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
+  if (isDemoMode()) {
+    const res = await resolveDemoRequest(endpoint, options)
+    return res.json()
+  }
+
   const token = await getAuthToken()
 
   if (!token) {
@@ -85,6 +92,11 @@ export const apiRequestFormData = async <T = unknown>(
   endpoint: string,
   formData: FormData
 ): Promise<T> => {
+  if (isDemoMode()) {
+    const res = await resolveDemoRequest(endpoint, { method: "POST" })
+    return res.json()
+  }
+
   const token = await getAuthToken()
 
   if (!token) {

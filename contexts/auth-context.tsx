@@ -5,6 +5,7 @@ import { User, Session } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
 import { useRouter, usePathname } from "next/navigation"
 import { getQueryClient } from "@/components/providers/query-provider"
+import { isDemoMode, DEMO_USER } from "@/lib/demo-mode"
 
 interface AuthContextType {
   user: User | null
@@ -38,6 +39,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
 
   useEffect(() => {
+    // Demo mode: inject a fixture user and never touch Supabase — works
+    // with no backend and inside cross-site iframes.
+    if (isDemoMode()) {
+      setUser(DEMO_USER as unknown as User)
+      setSession(null)
+      setLoading(false)
+      return
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)

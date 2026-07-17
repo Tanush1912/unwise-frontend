@@ -1,5 +1,6 @@
 import { getAuthToken, BACKEND_URL } from './api-client'
 import { ApiError, parseApiError } from './api-error'
+import { isDemoMode, resolveDemoRequest } from './demo-mode'
 
 export interface AuthFetchOptions extends RequestInit {
   throwOnError?: boolean
@@ -10,6 +11,12 @@ export const authFetch = async (
   options: AuthFetchOptions = {}
 ): Promise<Response> => {
   const { throwOnError = false, ...fetchOptions } = options
+
+  // Demo mode: serve fixtures locally — no backend, no auth required.
+  if (isDemoMode()) {
+    return resolveDemoRequest(url, fetchOptions)
+  }
+
   const token = await getAuthToken()
 
   if (!token) {
